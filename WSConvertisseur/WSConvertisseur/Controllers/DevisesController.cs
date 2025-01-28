@@ -22,6 +22,11 @@ namespace WSConvertisseur.Controllers
             devises.Add(francSuisse);
             devises.Add(yen);
         }
+        /// <summary>
+        /// Displays all currencies.
+        /// </summary>
+        /// <returns>Http response</returns>
+        /// <response code="200">When the currencies displays correctly</response>
         // GET: api/<DevisesController>
         [HttpGet]
         public IEnumerable<Devise> GetAll()
@@ -29,29 +34,90 @@ namespace WSConvertisseur.Controllers
             return devises;
         }
 
+        /// <summary>
+        /// Get a single currency.
+        /// </summary>
+        /// <returns>Http response</returns>
+        /// <param name="id">The id of the currency</param>
+        /// <response code="200">When the currency id is found</response>
+        /// <response code="404">When the currency id is not found</response>
         // GET api/<DevisesController>/5
-        [HttpGet("{id}")]
-        public string Get(int id)
+        [HttpGet("{id}", Name = "GetDevise")]
+        public ActionResult<Devise> GetById([FromRoute] int id)
         {
-            return "value";
+            Devise? devise = devises.FirstOrDefault((d) => d.Id == id);
+            if (devise == null)
+            {
+                return NotFound();
+            }
+            return devise;
         }
 
+        /// <summary>
+        /// Add a currency to the currency list.
+        /// </summary>
+        /// <returns>Http response</returns>
+        /// <param name="id">The id of the currency</param>
+        /// <response code="200">When the currency id is found</response>
+        /// <response code="404">When the currency id is not found</response>
         // POST api/<DevisesController>
         [HttpPost]
-        public void Post([FromBody] string value)
+        public ActionResult<Devise> Post([FromBody] Devise devise)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            devises.Add(devise);
+            return CreatedAtRoute("GetDevise", new { id = devise.Id }, devise);
         }
 
+        /// <summary>
+        /// Replace a currency by another in the list.
+        /// </summary>
+        /// <returns>Http response</returns>
+        /// <param name="id">The id of the currency</param>
+        /// <response code="200">When the currency id is found</response>
+        /// <response code="404">When the currency id is not found</response>
         // PUT api/<DevisesController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public ActionResult Put(int id, [FromBody] Devise devise)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (id != devise.Id)
+            {
+                return BadRequest();
+            }
+            int index = devises.FindIndex((d) => d.Id == id);
+            if (index < 0)
+            {
+                return NotFound();
+            }
+            devises[index] = devise;
+            return NoContent();
         }
 
+        /// <summary>
+        /// Delete a currency in the list.
+        /// </summary>
+        /// <returns>Http response</returns>
+        /// <param name="id">The id of the currency</param>
+        /// <response code="200">When the currency id is found</response>
+        /// <response code="404">When the currency id is not found</response>
         // DELETE api/<DevisesController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("{id}", Name = "GetDevise")]
+        public ActionResult<Devise> Delete([FromRoute] int id)
         {
+            Devise? devise = devises.FirstOrDefault((d) => d.Id == id);
+            if (devise == null)
+            {
+                return NotFound();
+            }
+            devises.Remove(devise);
+            return devise;
         }
 
         
